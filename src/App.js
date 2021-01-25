@@ -3,7 +3,8 @@ import React, {
   useState,
   useMemo,
   useCallback,
-  useReducer
+  useReducer,
+  createContext
 } from "react";
 import UserList from "./UserList";
 import CreateUser from "./CreateUser";
@@ -60,6 +61,7 @@ function reducer(state, action) {
   }
 }
 
+export const UserDispatch = createContext(null);
 function App() {
   const [{ username, email }, onChange, reset] = useInputs({
     username: "",
@@ -69,42 +71,45 @@ function App() {
   const nextId = useRef(4);
   const { users } = state;
 
-  const onCreate = useCallback(() => {
-    dispatch({
-      type: "CREATE_USER",
-      user: {
-        id: nextId.current,
-        username,
-        email
-      }
-    });
-    reset();
-    nextId.current += 1;
-  }, [username, email, reset]);
-  const onToggle = useCallback((id) => {
-    dispatch({
-      type: "TOGGLE_USER",
-      id
-    });
-  }, []);
+  // const onCreate = useCallback(() => {
+  //   dispatch({
+  //     type: "CREATE_USER",
+  //     user: {
+  //       id: nextId.current,
+  //       username,
+  //       email
+  //     }
+  //   });
+  //   reset();
+  //   nextId.current += 1;
+  // }, [username, email, reset]);
   const count = useMemo(() => countActiveUsers(users), [users]);
-  const onRemove = useCallback((id) => {
-    dispatch({
-      type: "REMOVE_USER",
-      id
-    });
-  }, []);
+
+  // const onToggle = useCallback((id) => {
+  //   dispatch({
+  //     type: "TOGGLE_USER",
+  //     id
+  //   });
+  // }, []);
+
+  // const onRemove = useCallback((id) => {
+  //   dispatch({
+  //     type: "REMOVE_USER",
+  //     id
+  //   });
+  // }, []);
   return (
-    <>
+    <UserDispatch.Provider value={dispatch}>
       <CreateUser
-        username={username}
-        email={email}
-        onChange={onChange}
-        onCreate={onCreate}
+      // username={username}
+      // email={email}
+      // onChange={onChange}
+      // onCreate={onCreate}
       />
-      <UserList users={users} onToggle={onToggle} onRemove={onRemove} />
+      {/* <UserList users={users} onToggle={onToggle} onRemove={onRemove} /> */}
+      <UserList users={users} />
       <div>활성사용자 수 : {count} </div>
-    </>
+    </UserDispatch.Provider>
   );
 }
 
